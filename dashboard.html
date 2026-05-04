@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UBG Portal - Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --glass: rgba(255, 255, 255, 0.1); --blur: blur(10px); }
+        body { font-family: 'Poppins', sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 20px; }
+        .container { background: var(--glass); backdrop-filter: var(--blur); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); width: 100%; max-width: 500px; }
+        h2 { text-align: center; color: #38bdf8; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; outline: none; }
+        input, select { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); }
+        button { background: #38bdf8; color: #0f172a; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #0ea5e9; transform: translateY(-2px); }
+        .status { text-align: center; font-size: 14px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Add New Game</h2>
+    <form id="gameForm">
+        <input type="text" id="title" placeholder="Game Title" required>
+        <select id="category">
+            <option value="Action">Action</option>
+            <option value="Racing">Racing</option>
+            <option value="Shooting">Shooting</option>
+            <option value="Puzzle">Puzzle</option>
+        </select>
+        <input type="url" id="imageUrl" placeholder="Image URL (Thumbnail)" required>
+        <input type="url" id="downloadUrl" placeholder="Game URL (Netlify Link)" required>
+        <button type="submit" id="submitBtn">Upload Game</button>
+    </form>
+    <div id="status" class="status"></div>
+</div>
+
+<script>
+    // --- YAHAN APNI DETAILS DALAIN ---
+    const SUPABASE_URL = 'YAHAN_APNA_URL_PASTE_KAREIN'; 
+    const SUPABASE_KEY = 'YAHAN_APNI_ANON_KEY_PASTE_KAREIN';
+    // ---------------------------------
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    document.getElementById('gameForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        const status = document.getElementById('status');
+        
+        btn.disabled = true;
+        btn.innerText = 'Uploading...';
+
+        const gameData = {
+            title: document.getElementById('title').value,
+            category: document.getElementById('category').value,
+            image_url: document.getElementById('imageUrl').value,
+            download_url: document.getElementById('downloadUrl').value
+        };
+
+        const { data, error } = await supabase.from('games').insert([gameData]);
+
+        if (error) {
+            status.innerHTML = `<span style="color: #ef4444;">Error: ${error.message}</span>`;
+        } else {
+            status.innerHTML = `<span style="color: #22c55e;">Game Uploaded Successfully!</span>`;
+            document.getElementById('gameForm').reset();
+        }
+        btn.disabled = false;
+        btn.innerText = 'Upload Game';
+    });
+</script>
+</body>
+</html>
